@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gravitee API Demo - Business Intelligence Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .demo-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .api-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .api-card {
+            background: linear-gradient(145deg, #f8f9fa, #e9ecef);
+            border-radius: 12px;
+            padding: 20px;
+            border-left: 5px solid #667eea;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .api-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 25px rgba(0,0,0,0.1);
+        }
+
+        .api-card h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #28a745;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .data-display {
+            font-family: 'Courier New', monospace;
+            background: #2d3748;
+            color: #a0aec0;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 14px;
+            overflow-x: auto;
+            margin-top: 10px;
+        }
+
+        .loading {
+            text-align: center;
+            color: #6c757d;
+            font-style: italic;
+        }
+
+        .btn {
+            background: linear-gradient(145deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            margin: 10px 5px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .endpoint-demo {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .endpoint {
+            background: #2d3748;
+            color: #68d391;
+            padding: 10px;
+            border-radius: 6px;
+            font-family: monospace;
+            margin: 10px 0;
+        }
+
+        .method {
+            background: #2b6cb0;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 40px;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚀 Gravitee API Demo</h1>
+            <p class="subtitle">From Zero to API in 5 Minutes - Business Intelligence Dashboard</p>
+        </header>
+
+        <div class="demo-section">
+            <h2>📊 Live API Aggregation Demo</h2>
+            <p>This demo shows how Gravitee can quickly create a unified API that aggregates data from multiple sources:</p>
+            
+            <button class="btn" onclick="loadAllData()">🔄 Refresh All Data</button>
+            <button class="btn" onclick="showEndpoints()">📋 Show API Endpoints</button>
+            
+            <div class="api-grid" id="apiGrid">
+                <div class="api-card">
+                    <h3><span class="status"></span> Exchange Rates</h3>
+                    <p>Real-time currency conversion rates</p>
+                    <div class="data-display" id="exchangeData">
+                        <div class="loading">Loading exchange rates...</div>
+                    </div>
+                </div>
+
+                <div class="api-card">
+                    <h3><span class="status"></span> Weather Data</h3>
+                    <p>Current weather for major business centers</p>
+                    <div class="data-display" id="weatherData">
+                        <div class="loading">Loading weather data...</div>
+                    </div>
+                </div>
+
+                <div class="api-card">
+                    <h3><span class="status"></span> Country Info</h3>
+                    <p>Business-relevant country information</p>
+                    <div class="data-display" id="countryData">
+                        <div class="loading">Loading country data...</div>
+                    </div>
+                </div>
+
+                <div class="api-card">
+                    <h3><span class="status"></span> Market Data</h3>
+                    <p>Cryptocurrency market overview</p>
+                    <div class="data-display" id="marketData">
+                        <div class="loading">Loading market data...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="demo-section" id="endpointDemo" style="display: none;">
+            <h2>🔌 API Endpoints Created</h2>
+            <p>Here are the endpoints that would be created through Gravitee:</p>
+            
+            <div class="endpoint-demo">
+                <div class="endpoint">
+                    <span class="method">GET</span>/api/v1/business-intelligence/dashboard
+                </div>
+                <p>Returns aggregated data from all sources</p>
+                
+                <div class="endpoint">
+                    <span class="method">GET</span>/api/v1/business-intelligence/exchange-rates
+                </div>
+                <p>Current exchange rates for major currencies</p>
+                
+                <div class="endpoint">
+                    <span class="method">GET</span>/api/v1/business-intelligence/weather/{city}
+                </div>
+                <p>Weather data for business locations</p>
+                
+                <div class="endpoint">
+                    <span class="method">GET</span>/api/v1/business-intelligence/market-overview
+                </div>
+                <p>Market data and trends</p>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h2>⚡ Gravitee Features Demonstrated</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-top: 20px;">
+                <div style="text-align: center; padding: 20px;">
+                    <div style="font-size: 2rem; margin-bottom: 10px;">🛡️</div>
+                    <h4>Security & Auth</h4>
+                    <p>Rate limiting, API keys, OAuth integration</p>
+                </div>
+                <div style="text-align: center; padding: 20px;">
+                    <div style="font-size: 2rem; margin-bottom: 10px;">🔄</div>
+                    <h4>Data Transformation</h4>
+                    <p>JSON transformation, response aggregation</p>
+                </div>
+                <div style="text-align: center; padding: 20px;">
+                    <div style="font-size: 2rem; margin-bottom: 10px;">📈</div>
+                    <h4>Analytics</h4>
+                    <p>Real-time monitoring, usage analytics</p>
+                </div>
+                <div style="text-align: center; padding: 20px;">
+                    <div style="font-size: 2rem; margin-bottom: 10px;">👥</div>
+                    <h4>Developer Portal</h4>
+                    <p>Auto-generated docs, API testing</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>🚀 <strong>From Zero to API in 5 Minutes</strong> - Powered by Gravitee</p>
+            <p>Transform your business with enterprise-grade API management</p>
+        </div>
+    </div>
+
+    <script>
+        // Demo data and API calls
+        async function loadExchangeRates() {
+            try {
+                const response = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
+                const data = await response.json();
+                const major = {
+                    EUR: data.rates.EUR.toFixed(4),
+                    GBP: data.rates.GBP.toFixed(4),
+                    JPY: data.rates.JPY.toFixed(2),
+                    CAD: data.rates.CAD.toFixed(4)
+                };
+                
+                document.getElementById('exchangeData').innerHTML = `
+                    <strong>USD Exchange Rates:</strong><br>
+                    EUR: ${major.EUR}<br>
+                    GBP: ${major.GBP}<br>
+                    JPY: ${major.JPY}<br>
+                    CAD: ${major.CAD}<br>
+                    <em>Updated: ${new Date().toLocaleTimeString()}</em>
+                `;
+            } catch (error) {
+                document.getElementById('exchangeData').innerHTML = `
+                    <strong>Exchange Rates Demo:</strong><br>
+                    EUR: 0.8532<br>
+                    GBP: 0.7891<br>
+                    JPY: 148.25<br>
+                    CAD: 1.3647<br>
+                    <em>Live API: ${error.message}</em>
+                `;
+            }
+        }
+
+        async function loadWeatherData() {
+            // Using mock data for demo reliability
+            const cities = ['London', 'New York', 'Tokyo', 'Singapore'];
+            const weather = {
+                'London': '15°C, Cloudy',
+                'New York': '22°C, Sunny',
+                'Tokyo': '18°C, Rainy',
+                'Singapore': '31°C, Humid'
+            };
+            
+            let display = '<strong>Business Centers:</strong><br>';
+            cities.forEach(city => {
+                display += `${city}: ${weather[city]}<br>`;
+            });
+            display += `<em>Updated: ${new Date().toLocaleTimeString()}</em>`;
+            
+            document.getElementById('weatherData').innerHTML = display;
+        }
+
+        async function loadCountryData() {
+            try {
+                const response = await fetch('https://restcountries.com/v3.1/alpha/US,GB,DE,JP?fields=name,population,gdp');
+                const countries = await response.json();
+                
+                let display = '<strong>Key Markets:</strong><br>';
+                countries.forEach(country => {
+                    const pop = (country.population / 1000000).toFixed(1);
+                    display += `${country.name.common}: ${pop}M people<br>`;
+                });
+                display += `<em>Updated: ${new Date().toLocaleTimeString()}</em>`;
+                
+                document.getElementById('countryData').innerHTML = display;
+            } catch (error) {
+                document.getElementById('countryData').innerHTML = `
+                    <strong>Key Markets:</strong><br>
+                    United States: 331.9M people<br>
+                    United Kingdom: 67.5M people<br>
+                    Germany: 83.2M people<br>
+                    Japan: 125.8M people<br>
+                    <em>Demo data: API unavailable</em>
+                `;
+            }
+        }
+
+        async function loadMarketData() {
+            try {
+                const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd');
+                const data = await response.json();
+                
+                document.getElementById('marketData').innerHTML = `
+                    <strong>Crypto Markets:</strong><br>
+                    Bitcoin: $${data.bitcoin.usd.toLocaleString()}<br>
+                    Ethereum: $${data.ethereum.usd.toLocaleString()}<br>
+                    <br>
+                    <strong>Market Status:</strong> OPEN<br>
+                    <em>Updated: ${new Date().toLocaleTimeString()}</em>
+                `;
+            } catch (error) {
+                document.getElementById('marketData').innerHTML = `
+                    <strong>Crypto Markets:</strong><br>
+                    Bitcoin: $43,250<br>
+                    Ethereum: $2,580<br>
+                    <br>
+                    <strong>Market Status:</strong> OPEN<br>
+                    <em>Demo data: ${error.message}</em>
+                `;
+            }
+        }
+
+        function loadAllData() {
+            loadExchangeRates();
+            loadWeatherData();
+            loadCountryData();
+            loadMarketData();
+        }
+
+        function showEndpoints() {
+            const demo = document.getElementById('endpointDemo');
+            demo.style.display = demo.style.display === 'none' ? 'block' : 'none';
+        }
+
+        // Load initial data
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(loadAllData, 500);
+        });
+
+        // Auto-refresh every 30 seconds for demo
+        setInterval(loadAllData, 30000);
+    </script>
+</body>
+</html>
